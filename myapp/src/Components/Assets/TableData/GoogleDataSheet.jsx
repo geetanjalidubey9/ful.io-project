@@ -1,47 +1,108 @@
 import React, { useEffect, useState } from "react";
 
 const DataTable = () => {
-  const [data, setData] = useState([]);
+  
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [header, setHeader] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [limit, setLimit] = useState(20);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy]=  useState(1);
+  const [sortByOrder, setSortByOrder] = useState('ascending');
+  const [next, setNext] = useState(true);
+  const [prev, setPrev] = useState(false);
 
-  const SHEET_ID = "AKfycbzr1PbR6YHUtbzcfS5Wt4WA9SXhof3EsQkaeR8hcuOY5lLnq3sWHbvVjsl9ns"; // Your Google Sheets ID
-  const API_KEY = "YOUR_API_KEY"; // Replace with your API key
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `https://script.google.com/macros/s/AKfycbweM81fWA12E2BF-XTLztJ8TZdC4lQzg-ouhEmrwPjmb52N_3bJ56TZzTt8rS_IJ9boqA/exec?limit=${limit}&page=${page}&sortby=${sortBy}&sortByOrder=${sortByOrder}&search=${search}`,
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `https://script.googleusercontent.com/macros/echo?user_content_key=kyilgqjgn1UiSEOfQ6n3YgQs4Iw2CTdsY9bN79w7NiCVporlhNk3_5-SJ_syDqDUph1djYXeLUM320mM-6P0sD0NMJKZx-Mim5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnLUsT0KDu7LmHgYJH5JEfi4z6SF_v3aKOD4SfiXTPkGuQq4vi07CDViFCpdjScVu7A&lib=MEOyeFvP_W-cArgp3mkZwZTB8Ga8GDvl_`,
-
+        {
+          headers:
           {
-            headers:
-            {
-              "Access-Control-Allow-Origin":"*",
-              "Access-Control-Allow-Headers": "Application/json"
-            },
+            "Content-Type": "text/plain;charset=utf-8",
+          },
+          }
+      );
+      const result = await response.json();
+      console.log(result)
 
-            }
-        );
-        console.log(response)
-        const result = await response.json();
-
-        if (result.values) {
-          const [headers, ...rows] = result.values;
-          setData({ headers, rows });
-        } else {
-          setError("No data found.");
+      if (result) {
+        if (result.header) {
+          setHeader(result.header)
+          
         }
-      } catch (err) {
-        setError("Failed to fetch data.");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
+        if (result.rows) {
+        
+          setRows(result.rows)
+          if (result.rows.length < limit) {
+            setNext(false);
+          }
+          else{
+            setNext(true)
+          }
+        }
+        // const headers = result.data[0]
+        // console.log('headers', JSON.stringify(headers))
+        
+        // const leftRowObjects = result.data.slice(1)
+        
+      } else {
+        setError("No data found.");
       }
-    };
+    } catch (err) {
+      setError("Failed to fetch data.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+
+  const onNext=()=>{
+    setPage(page+1);
+  }
+  const onPrev=()=>{
+    if(page>1){
+    setPage(page-1);
+    }
+  }
+  
+  const onSearch=()=>{
+   
+    if(page!=1){
+      setPage(1);
+    }
+    else{
+      fetchData();
+    }
+ 
+  }
+  const handleSort=(i)=>{
+     setSortBy(i+1);
+  }
+
+  const handleLimit=()=>{
+  if(!limit){
+    setLimit(20);
+    
+  }
+  onSearch();
+
+  }
+  useEffect(() => {
     fetchData();
-  }, []);
+    if(page>1){
+      setPrev(true);
+    }
+    if(page<=1){
+      setPrev(false);
+    }
+  }, [page,sortBy]);
+
 
   if (isLoading) return <p>Loading data...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -49,26 +110,63 @@ const DataTable = () => {
   return (
     <div style={{ margin: "20px" }}>
       <h1>Google Sheets Data</h1>
+       <p>Note:click on column to sort</p>
+
+      <div>
+        <input
+          type="text"
+          placeholder="Search by domain..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+
+
+        />
+
+        <button onClick={onSearch}>search</button>
+      </div>
       <table border="1" cellPadding="8" cellSpacing="0" style={{ width: "100%" }}>
         <thead>
           <tr>
-            {data.headers.map((header, index) => (
-              <th key={index}>{header}</th>
+            {header.map((header,index) => (
+              <th style={{width:'10rem',cursor:'pointer'}}onClick={()=>{
+                handleSort(index)
+              }} key={index}>{header}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {data.rows.map((row, rowIndex) => (
+       
+           {rows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((cell, cellIndex) => (
                 <td key={cellIndex}>{cell}</td>
               ))}
+             
             </tr>
-          ))}
+          
+          
+           ))}
+
         </tbody>
+     
       </table>
+      {prev&&<button onClick={onPrev}>prev</button>}
+      {next&&<button onClick={onNext}>next</button>}
+      <div>
+        <input
+          type="text"
+          placeholder="rows limit..."
+          value={limit}
+          onChange={(e) => setLimit(e.target.value)}
+
+
+        />
+
+        <button onClick={handleLimit}>submit</button>
+      </div>
     </div>
   );
 };
 
 export default DataTable;
+

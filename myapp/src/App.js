@@ -1,4 +1,9 @@
 import React, { useState } from "react";
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import LoginPage from "./Components/Assets/LoginForm/LoginPage";
 import TablePage from "./Components/Assets/TableData/GoogleDataSheet";
 
@@ -12,9 +17,22 @@ function App() {
 
   return (
     <div>
-  
-        <LoginPage/>
-        <TablePage />
+      <Router>
+    <Routes>
+      <Route
+        exact 
+        path='/'
+       element={<LoginPage/>}
+      ></Route>
+
+      <Route
+        exact 
+        path='/table'
+       element={<TablePage/>}
+      ></Route>
+    </Routes>
+  </Router>
+        
      
     </div>
   );
