@@ -110,7 +110,7 @@ const DataTable = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div style={{ margin: "20px" }}>
+    <div style={{ margin: "20px" }} className="mytable">
       <h1>Google Sheets Data</h1>
        <p>Note:click on column to sort</p>
 
@@ -125,9 +125,10 @@ const DataTable = () => {
 
         />
 
-        <button onClick={onSearch}>search</button>
+        <button id='search' onClick={onSearch}>search</button>
       </div>
-      <table border="1" cellPadding="8" cellSpacing="0" style={{ width: "100%" }}>
+ 
+      <table border="1" cellPadding="8" cellSpacing="0" style={{ width: "100%", tableLayout: 'auto'}}>
         <thead>
           <tr>
             {header.map((header,index) => (
@@ -153,8 +154,14 @@ const DataTable = () => {
         </tbody>
      
       </table>
-      {prev&&<button onClick={onPrev}>prev</button>}
-      {next&&<button onClick={onNext}>next</button>}
+ 
+      {/* {prev&&<button id='prev' onClick={onPrev}>prev</button>}
+      {next&&<button id='next' onClick={onNext}>next</button>} */}
+      <div className="pagination">
+  {prev && <button id="prev" onClick={onPrev}>prev</button>}
+  {next && <button id="next" onClick={onNext}>next</button>}
+</div>
+
       <div>
         <input
          className='search'
@@ -166,7 +173,7 @@ const DataTable = () => {
 
         />
 
-        <button onClick={handleLimit}>submit</button>
+        <button id='sbmit' onClick={handleLimit}>submit</button>
       </div>
     </div>
   );
