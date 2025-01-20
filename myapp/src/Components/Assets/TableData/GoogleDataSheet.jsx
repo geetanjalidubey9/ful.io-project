@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./GoogleDataSheet.css"
 
 const DataTable = () => {
   
@@ -27,6 +28,7 @@ const DataTable = () => {
           },
           }
       );
+     
       const result = await response.json();
       console.log(result)
 
@@ -114,6 +116,7 @@ const DataTable = () => {
 
       <div>
         <input
+        className='search'
           type="text"
           placeholder="Search by domain..."
           value={search}
@@ -154,6 +157,7 @@ const DataTable = () => {
       {next&&<button onClick={onNext}>next</button>}
       <div>
         <input
+         className='search'
           type="text"
           placeholder="rows limit..."
           value={limit}
