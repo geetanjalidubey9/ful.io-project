@@ -155,10 +155,9 @@ const DataTable = () => {
      
       </table>
  
-      {/* {prev&&<button id='prev' onClick={onPrev}>prev</button>}
-      {next&&<button id='next' onClick={onNext}>next</button>} */}
       <div className="pagination">
   {prev && <button id="prev" onClick={onPrev}>prev</button>}
+  <p>{page}</p>
   {next && <button id="next" onClick={onNext}>next</button>}
 </div>
 
